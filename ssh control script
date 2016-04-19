@@ -1,0 +1,187 @@
+#!/bin/bash
+_my_ip="192.168.2.1"
+_remote_ip="192.168.2.2"
+_remote_user="pi"
+_my_user="dragon"
+_remote_ssfs_dir="/"
+_my_sshfs_mount="sshfs/"
+
+function menu2() {
+motd
+PS3='You chose sshfs: '
+options=("To" "From" "Back" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "To")
+            sshfs $_remote_user@$_remote_ip:$_remote_sshfs_dir $_my_sshfs_mount
+            ;;
+        "From")
+            ssh $_remote_user@$_remote_ip 'sshfs $_my_user@$_my_ip:$_remote_sshfs_dir $_my_sshfs_mount'
+            ;;
+	"Back")
+	   menu1
+	    ;;
+        "Quit")
+            exit
+            ;;
+        *) echo invalid option;;
+    esac
+done
+}
+function menu3() {
+motd
+PS3='Select user to ssh to: '
+options=("Connect-User" "Connect-Root" "Back" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "Connect-User")
+            ssh $_remote_user@$_remote_ip
+            ;;
+	"Connect-Root")
+	   ssh root@$_remote_ip
+	   ;;
+        "Back")
+           menu1
+            ;;
+        "Quit")
+            exit
+            ;;
+        *) echo invalid option;;
+    esac
+done
+}
+function menu4() { ##apps
+motd
+echo 'not done'
+sleep 2
+menu1
+#PS3='Please enter your choice: '
+#options=("1" "2")
+#select opt in "${options[@]}"
+#do
+#    case $opt in
+#        "1")
+#            echo "you chose choice 1"
+#            ;;
+#        "2")
+#            echo "you chose choice 2"
+#            ;;
+#        *) echo invalid option;;
+#    esac
+#done
+}
+function menu5() { ##video
+motd
+PS3='Play Video from which source?: '
+options=("Youtube" "Video-File" "Back" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "Youtube")
+	    read -p "Enter Youtube URL:  " _URL
+	    echo 'your url is : '$_URL
+            ssh $_remote_user@$_remote_ip '/home/pi/yt' $_URL
+            ;;
+        "Video-File")
+	    read -p "Play Video File: " _Video
+	    echo 'now playing: _'$_Video
+	    ssh $_remote_user@$_remote_ip 'omxplayer '$_Video' > /dev/tty0'
+            ;;
+        "Back")
+           menu1
+            ;;
+        "Quit")
+            exit
+            ;;
+
+        *) echo invalid option;;
+    esac
+done
+}
+function menu6() { ##games
+motd
+PS3='Emulation Station: '
+options=("Start" "Kill" "Back" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "Start")
+           ssh $_remote_user@$_remote_ip 'emulationstation'
+           menu6
+           ;;
+        "Kill")
+           ssh $_remote_user@$_remote_ip 'killall emulationstation'
+	   menu6
+           ;;
+        "Back")
+           menu1
+            ;;
+        "Quit")
+            exit
+            ;;
+        *) echo invalid option;;
+    esac
+done
+}
+function menu7() { ##keyboard
+motd
+echo 'Connecting SSH' ...
+echo 'On connection run ./pikeys'
+ssh $_remote_user@$_remote_ip
+menu1
+}
+
+function menu1() {
+motd
+PS3='Please enter your choice: '
+options=("Sshfs" "Ssh" "Apps" "Video" "Games" "Keyboard" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "Sshfs")
+	    menu2
+            ;;
+        "Ssh")
+            menu3
+            ;;
+        "Apps")
+            menu4
+            ;;
+        "Video")
+            menu5
+            ;;
+        "Games")
+            menu6
+            ;;
+        "Keyboard")
+            menu7
+            ;;
+        "Quit")
+            exit
+            ;;
+        *) echo invalid option;;
+    esac
+done
+}
+function motd() {
+clear
+echo "                                   /   \       "
+echo " (@)                       )      ((   ))     ("
+echo " |-|                     / | \    (/\|/\)   / | \                      (@)"
+echo " | | -------------------/--|-voV---\-|-/--Vov-|--\---------------------|-|"
+echo " |-|                          ^    (o o)   ^                           | |"
+echo " | |                                \Y/                                |-|"
+echo " |-|                   Dragonkeepers' SSH Controller                   | |"
+echo " | |                                                                   |-|"
+echo " |-|                                                                   | |"
+echo " | |                             30/12/2015                            |-|"
+echo " |_|___________________________________________________________________| |"
+echo " (@)              l   /\ /         ( (       \ /\   l                 \|-|"
+echo "                  l /   V           \ \       V   \ l                  (@)"
+echo "                  l/                _) )_          \I"
+echo "                                     \ /"
+echo "                                      "
+}
+menu1

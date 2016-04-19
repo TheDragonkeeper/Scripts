@@ -1,0 +1,38 @@
+Interface=eth0
+while true
+do
+clear
+CheckState=$(cat /sys/class/net/$Interface/operstate)
+CheckCarrier=$(cat /sys/class/net/$Interface/carrier)
+if [ $CheckState == 'up' ]; then
+echo -n $interface
+echo ' Seems to be live'
+else
+echo -n $interface
+echo ' Seems to be dead'
+fi
+if [ $CheckCarrier == '1' ]; then
+echo -n $interface
+echo ' Carrier = 1'
+else
+echo -n $interface
+echo ' Carrier = 0'
+fi
+CheckDhcp=$(ifconfig eth0 | grep 'inet addr:' | awk '{print $2}')
+if [ -z $CheckDhcp ] ; then
+echo 'waiting for connection addr'
+else
+if [[ $CheckDhcp == addr:169* ]]; then
+echo ' maybe there is no dhcp here'
+else
+echo ' i might have just got dhcp '
+echo $CheckDhcp
+echo ''
+Pinger=$( echo $CheckDhcp | sed -e 's/\<addr\>//g' | sed 's/://g' )
+sudo ping -c 3 $Pinger
+exit
+fi
+fi
+sleep 2s
+done
+

@@ -1,0 +1,41 @@
+echo 'hdmi_group=2' > /boot/config.txt
+echo 'hdmi_mode=1' >> /boot/config.txt
+echo 'hdmi_mode=87' >> /boot/config.txt
+echo 'hdmi_cvt 800 480 60 6 0 0 0' >> /boot/config.txt
+echo 'dtparam=audio=on' >> /boot/config.txt
+mkdir tslib
+cd tslib
+git clone https://github.com/kergoth/tslib.git
+cd tslib
+apt-get install dh-autoreconf
+./autogen.sh
+./configure
+make
+make install
+echo '/usr/local/lib/ts' > /etc/ld.so.conf.d/tslib.conf
+ldconfig
+cp etc/ts.conf /etc/ts.conf
+cat /etc/ts.conf | sed s/'# module_raw input'/'module_raw input'/ > /etc/ts.conf 
+cd ../
+git clone https://github.com/saper-2/rpi-5inch-hdmi-touchscreen-driver.git
+cd rpi-5inch-hdmi-touchscreen-driver
+chmod +x install-prepare.sh
+./install-prepare.sh
+clear
+read -p 'Enter to continue,   make a note of events'
+ls /dev/input/
+read -p 'running test to add new event'
+./touch.py &
+clear
+ls /dev/input/
+EVENTID1=''
+echo ' '
+echo ' '
+echo 'Type new event(number)'
+read -p EVENTID1
+sudo TSLIB_CONFFILE=/etc/ts.conf TSLIB_CALIBFILE=/etc/pointercal TSLIB_FBDEVICE=/dev/fb0 TSLIB_TSDEVICE=/dev/input/$EVENTID1 ts_calibrate
+cat /etc/pointercal
+./install.sh
+sudo /etc/init.d/touch.sh start
+read -p 'Reboot, hit enter'
+reboot
