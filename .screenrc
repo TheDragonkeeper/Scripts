@@ -1,0 +1,20 @@
+hardstatus alwayslastline "%{=b}%{G} Screen(s): %{b}%w %=%{kG}%C%A %D, %M/%d/%Y "
+startup_message off
+msgwait 1
+
+# bind <F7> to detach screen from this terminal
+# bind <F8> to kill current session
+# bind <F10> to create a new screen
+# bind <F9> to rename an existing window
+# bind <F11> to move to previous window
+# bind <F12> to move to next window
+bindkey -k k7 detach
+bindkey -k k8 kill
+bindkey -k k6 screen
+bindkey -k k9 title
+bindkey -k k3 prev
+bindkey -k k4 next
+
+# Bind R to reload screen
+bind R eval "source $HOME/.screenrc" "echo '.screenrc reloaded!'"
+
